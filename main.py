@@ -18,12 +18,34 @@ menu6 = pygame.image.load('6.JPG')
 menu7 = pygame.image.load('7.JPG')
 menu8 = pygame.image.load('8.JPG')
 menu9 = pygame.image.load('9.JPG')
+grass = pygame.image.load('grass.jpg')
+default_tracks_NS = pygame.image.load('tracksNS.jpg')
+default_tracks_EW = pygame.image.load('tracksEW.jpg')
+tier_NS = pygame.image.load('tierNS.jpg')
+tier_EW = pygame.image.load('tierEW.jpg')
 
 TitleText = pygame.font.Font('freesansbold.ttf',70)
 SubText = pygame.font.Font('freesansbold.ttf', 20)
 
 display = pygame.display.set_mode((800,600))
 display.fill(white)
+
+class city:
+    def __init__(self):
+        self.scrap = 0
+        self.metal = 0
+        self.inventory = {}
+        self.fuel = 500
+        self.food = 100
+        self.population = 50
+        self.tiers = {}
+        self.engine = ['default_engine',20,80,1] #name, topSpeed, weight,FuelPerTick
+        self.jaw = ['default_jaw', 20,10] #name, eatSpeed, weight
+        self.tracks = ['default_tracks',1000] #name, weightCapacity
+        self.posX = 300
+        self.posY = 200
+        self.velocity = [0,'SOUTH'] #speed, direction       
+
 
 def text(font,text,center):
     textsurf = font.render(text,True,black)
@@ -35,7 +57,7 @@ def rect(color, x, y, width, height):
     pygame.draw.rect(display,color,(x,y,width,height))
 
 def render(image,x,y,w,h):
-    image = pygame.transform.scale(image,(800,600))
+    image = pygame.transform.scale(image,(w,h))
     RECT = pygame.Rect(x,y,w,h)
     display.blit(image,RECT)
 
@@ -76,7 +98,7 @@ def menu():
             circle(lightgrey, 200,270,20)
             circle(lightgrey, 600, 270,20)
             if int(click[0]) == 1:
-                print('I tried!')
+                game()
             
         else:
             rect(darkgrey,200,250,400,40)
@@ -116,9 +138,115 @@ def menu():
     pygame.quit()
     os._exit(1)
 
-def game():
-    pass
+def playerrender(xMov,Ymov,player,cameraX,cameraY):
+    player.posX += xMov
+    player.posY += Ymov
+    
+    direction = player.velocity[1]
 
+    if direction == 'NORTH' or direction == 'SOUTH':
+        render(default_tracks_NS,player.posX-cameraX,player.posY-cameraY,100,100)
+    else:
+        render(default_tracks_EW,player.posX-cameraX,player.posY-cameraY,100,100)
+    if direction == 'NORTH' or direction == 'SOUTH':
+        render(tier_NS,player.posX + 5-cameraX,player.posY + 5-cameraY,90,80)
+    else:
+        render(tier_EW,player.posX+ 5-cameraX,player.posY+ 5-cameraY,90,80)
+
+    if player.posX > 600 + cameraX:
+        cameraX += player.velocity[0]
+    elif player.posX < 100+ cameraX:
+        cameraX -= player.velocity[0]
+    if player.posY > 400+ cameraY:
+        cameraY += player.velocity[0]
+    elif player.posY < 100+ cameraY:
+        cameraY -= player.velocity[0]
+
+    return cameraX,cameraY
+
+def gamerender(xMov,yMov,player,cameraX,cameraY):
+    render(grass,int(0-cameraX),int(0-cameraY),1000,1000)
+    cameraX,cameraY = playerrender(xMov,yMov,player,cameraX,cameraY)
+    
+
+    pygame.display.update()
+    return cameraX,cameraY
+
+
+    
+    
+
+def game():
+    Running = True
+    moveUp=moveDown=moveLeft=moveRight=False
+    north=south=east=west=0
+    player = city()
+    Clock = pygame.time.Clock()
+    cameraX = 0
+    cameraY = 0
+    while Running:
+        Clock.tick(20)
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type==pygame.KEYDOWN:
+                if event.key==pygame.K_ESCAPE:
+                    pygame.quit()
+                    os._exit(1)
+                if event.key==pygame.K_UP:
+                    moveUp=True
+                if event.key==pygame.K_DOWN:
+                    moveDown=True
+                if event.key==pygame.K_LEFT:
+                    moveLeft=True
+                if event.key==pygame.K_RIGHT:
+                    moveRight=True
+            if event.type==pygame.KEYUP:
+                if event.key==pygame.K_UP:
+                    moveUp=False
+                if event.key==pygame.K_DOWN:
+                    moveDown=False
+                if event.key==pygame.K_LEFT:
+                    moveLeft=False
+                if event.key==pygame.K_RIGHT:
+                    moveRight=False
+        if moveUp and player.velocity[0] < 5:
+            north+=1
+        else:
+            if north > 0:
+                north -= 1
+        if moveDown and player.velocity[0] < 5:
+            south+=1
+        else:
+            if south > 0:
+                south -= 1
+        if moveLeft and player.velocity[0] < 5:
+            west+=1
+        else:
+            if west > 0:
+                west -=1
+        if moveRight and player.velocity[0] < 5:
+            east+=2
+        else:
+            if east > 0:
+                east -=1
+
+        xMov = east - west
+        yMov = south - north
+        player.velocity[0] = abs(xMov) + abs(yMov)
+        print(str(player.velocity))
+        
+        if xMov > 0:
+            player.velocity[1] = 'EAST'
+        elif xMov < 0:
+            player.velocity[1] = 'WEST'
+        if yMov > 0:
+            player.velocity[1] = 'SOUTH'
+        elif yMov < 0:
+            player.velocity[1] = 'NORTH'
+        
+        cameraX,cameraY = gamerender(xMov,yMov,player,cameraX,cameraY)
 
 def gamemenu():
     pass
