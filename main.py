@@ -8,6 +8,7 @@ import os
 
 pygame.init()
 display = pygame.display.set_mode((800,600))
+pygame.display.set_caption('HungryCities')
 white = (255,255,255)
 black = (0,0,0)
 grey = (128,128,128)
@@ -66,22 +67,7 @@ def render(image,x,y,w,h):
     display.blit(image,RECT)
 
 def circle(color, x, y, radius):
-    pygame.draw.circle(display, color, (x,y), radius)
-
-def button(text,x,y,w,h,tx,ty):
-    mouse = pygame.mouse.get_pos()
-    click = pygame.get_pressed()
-    if x+w > mouse[0] > x and y+h > mouse[1] > y:
-        rect(lightgrey,x,y,w,h)
-        circle(lightgrey, x,y+20,20)
-        circle(lightgrey, x+w, y+20,20)
-        
-    else:
-        rect(darkgrey,200,250,400,40)
-        circle(darkgrey, 200,270,20)
-        circle(darkgrey, 600, 270,20)
-    text(SubText, 'New Game', (400,270))
-    
+    pygame.draw.circle(display, color, (x,y), radius)   
 
 def menu():
     while True:
@@ -176,13 +162,85 @@ def gamerender(xMov,yMov,player,cameraX,cameraY):
     pygame.display.update()
     return cameraX,cameraY
 
+def invbutton(x,y):
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+    if x+75 > mouse[0] > x and y+75 > mouse[1] > y:
+        rect(lightgrey,x,y,75,75)
+        if int(click[0]) == 1:
+            return True
+    else:
+        rect(grey,x,y,75,75)
 
+def inv(player):
+    potato = False
+    
+    while 1:
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type==pygame.KEYDOWN:
+                if event.key==pygame.K_ESCAPE:
+                    pygame.quit()
+                    os._exit(1)
+                if event.key==pygame.K_i:
+                    potato = True
+            if event.type==pygame.KEYUP:
+                pass
+        if potato == True:
+            break
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        rect(darkgrey,50,50,700,500)
+        if 750>mouse[0]>700 and 100>mouse[1]>50:
+            rect(lightgrey,700,50,50,50)
+            if int(click[0]) == 1:
+                break
+        else:
+            rect(grey,700,50,50,50)
+    
+        
+        button1 = invbutton(55,50)
+        button2 = invbutton(135,50)
+        button3 = invbutton(215,50)
+        button4 = invbutton(295,50)
+        button5 = invbutton(375,50)
+        button6 = invbutton(455,50)
+        button7 = invbutton(535,50)
+        button8 = invbutton(615,50)
+
+        slot1 = invbutton(55,150)
+        slot2 = invbutton(135,150)
+        slot3 = invbutton(215,150)
+        slot4 = invbutton(295,150)
+        slot5 = invbutton(375,150)
+        slot6 = invbutton(455,150)
+        slot7 = invbutton(535,150)
+        slot8 = invbutton(615,150)
+        print('░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░')
+        print('░░░░░░░░░░▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄░░░░░░░░░')
+        print('░░░░░░░░▄▀░░░░░░░░░░░░▄░░░░░░░▀▄░░░░░░░')
+        print('░░░░░░░░█░░▄░░░░▄░░░░░░░░░░░░░░█░░░░░░░')
+        print('░░░░░░░░█░░░░░░░░░░░░▄█▄▄░░▄░░░█░▄▄▄░░░')
+        print('░▄▄▄▄▄░░█░░░░░░▀░░░░▀█░░▀▄░░░░░█▀▀░██░░')
+        print('░██▄▀██▄█░░░▄░░░░░░░██░░░░▀▀▀▀▀░░░░██░░')
+        print('░░▀██▄▀██░░░░░░░░▀░██▀░░░░░░░░░░░░░▀██░')
+        print('░░░░▀████░▀░░░░▄░░░██░░░▄█░░░░▄░▄█░░██░')
+        print('░░░░░░░▀█░░░░▄░░░░░██░░░░▄░░░▄░░▄░░░██░')
+        print('░░░░░░░▄█▄░░░░░░░░░░░▀▄░░▀▀▀▀▀▀▀▀░░▄▀░░')
+        print('░░░░░░█▀▀█████████▀▀▀▀████████████▀░░░░')
+        print('░░░░░░████▀░░███▀░░░░░░▀███░░▀██▀░░░░░░')
+        print('░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░')
+
+        pygame.display.update()
+        
     
     
 
 def game():
     Running = True
-    moveUp=moveDown=moveLeft=moveRight=False
+    moveUp=moveDown=moveLeft=moveRight=inventory=False
     north=south=east=west=0
     player = city()
     Clock = pygame.time.Clock()
@@ -206,6 +264,8 @@ def game():
                     moveLeft=True
                 if event.key==pygame.K_RIGHT:
                     moveRight=True
+                if event.key==pygame.K_i:
+                    inv(player)
             if event.type==pygame.KEYUP:
                 if event.key==pygame.K_UP:
                     moveUp=False
