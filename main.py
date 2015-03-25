@@ -1,9 +1,13 @@
 import pygame
 import time
 import os
+# todo list:
+#make function for buttons that works?
+#re-make png images
+#idk
 
 pygame.init()
-
+display = pygame.display.set_mode((800,600))
 white = (255,255,255)
 black = (0,0,0)
 grey = (128,128,128)
@@ -19,15 +23,15 @@ menu7 = pygame.image.load('7.JPG')
 menu8 = pygame.image.load('8.JPG')
 menu9 = pygame.image.load('9.JPG')
 grass = pygame.image.load('grass.jpg')
-default_tracks_NS = pygame.image.load('tracksNS.jpg')
-default_tracks_EW = pygame.image.load('tracksEW.jpg')
-tier_NS = pygame.image.load('tierNS.jpg')
-tier_EW = pygame.image.load('tierEW.jpg')
+default_tracks_NS = pygame.image.load('tracksNS.png').convert_alpha()
+default_tracks_EW = pygame.image.load('tracksEW.png').convert_alpha()
+tier_NS = pygame.image.load('tierNS.png').convert_alpha()
+tier_EW = pygame.image.load('tierEW.png').convert_alpha()
 
 TitleText = pygame.font.Font('freesansbold.ttf',70)
 SubText = pygame.font.Font('freesansbold.ttf', 20)
 
-display = pygame.display.set_mode((800,600))
+
 display.fill(white)
 
 class city:
