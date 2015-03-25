@@ -174,7 +174,9 @@ def invbutton(x,y):
 
 def inv(player):
     potato = False
-    
+    tier1button=True
+    tier2button=craftbutton=slot9=slot10=slot11=slot12=slot13=slot14=slot15=slot16=slot1=slot2=slot3=slot4=slot5=slot6=slot7=slot8=button1=button2=button3=button4=button5=button6=button7=button8=False
+    window = ''
     while 1:
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
@@ -193,6 +195,7 @@ def inv(player):
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         rect(darkgrey,50,50,700,500)
+        rect(grey,55,400,400,150)
         if 750>mouse[0]>700 and 100>mouse[1]>50:
             rect(lightgrey,700,50,50,50)
             if int(click[0]) == 1:
@@ -210,14 +213,40 @@ def inv(player):
         button7 = invbutton(535,50)
         button8 = invbutton(615,50)
 
-        slot1 = invbutton(55,150)
-        slot2 = invbutton(135,150)
-        slot3 = invbutton(215,150)
-        slot4 = invbutton(295,150)
-        slot5 = invbutton(375,150)
-        slot6 = invbutton(455,150)
-        slot7 = invbutton(535,150)
-        slot8 = invbutton(615,150)
+        if window == '1':
+            slot1 = invbutton(55,200)
+            slot2 = invbutton(135,200)
+            slot3 = invbutton(215,200)
+            slot4 = invbutton(295,200)
+            slot5 = invbutton(55,280)
+            slot6 = invbutton(135,280)
+            slot7 = invbutton(215,280)
+            slot8 = invbutton(295,280)
+        elif window == '2':
+            slot9 = invbutton(55,200)
+            slot10 = invbutton(135,200)
+            slot11 = invbutton(215,200)
+            slot12 = invbutton(295,200)
+            slot13 = invbutton(55,280)
+            slot14 = invbutton(135,280)
+            slot15 = invbutton(215,280)
+            slot16 = invbutton(295,280)
+        elif window == '3':
+            pass
+
+            
+
+        tier1button = invbutton(600,200)
+        tier2button = invbutton(600,280)
+        craftbutton = invbutton(600, 360)
+        if tier1button == True:
+            window = '1'
+        elif tier2button == True:
+            window = '2'
+        elif craftbutton == True:
+            window = 'craft'
+
+        
         print('░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░')
         print('░░░░░░░░░░▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄░░░░░░░░░')
         print('░░░░░░░░▄▀░░░░░░░░░░░░▄░░░░░░░▀▄░░░░░░░')
@@ -251,7 +280,7 @@ def game():
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                os._exit(1)
             if event.type==pygame.KEYDOWN:
                 if event.key==pygame.K_ESCAPE:
                     pygame.quit()
