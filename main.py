@@ -1,6 +1,7 @@
 import pygame
 import time
 import os
+import random
 # todo list:
 #make function for buttons that works?
 
@@ -63,6 +64,13 @@ class farm:
         self.production = 11
         self.capacity = 400
         self.pic = pygame.image.load('farm.png')
+
+class scrap:
+    def __init__(self):
+        self.amount = random.randint(10,80)
+        self.x = random.randint(0,2000)
+        self.y = random.randint(0,2000)
+        self.pic = pygame.image.load('pile.png')
 
 
 
@@ -213,12 +221,17 @@ def playerrender(xMov,Ymov,player,cameraX,cameraY):
 
     return cameraX,cameraY
 
-def gamerender(xMov,yMov,player,cameraX,cameraY):
+def gamerender(xMov,yMov,player,cameraX,cameraY,simobjects):
     render(grass,int(0-cameraX),int(0-cameraY),1000,1000)
     render(grass,int(1000-cameraX),int(0-cameraY),1000,1000)
     render(grass,int(0-cameraX),int(1000-cameraY),1000,1000)
     render(grass,int(1000-cameraX),int(1000-cameraY),1000,1000)
+
+    for item in simobjects:
+        render(item.pic,int(item.x - cameraX),int(item.y - cameraY),int(70),int(70))
+    
     cameraX,cameraY = playerrender(xMov,yMov,player,cameraX,cameraY)
+    
     
 
     pygame.display.update()
@@ -244,9 +257,7 @@ def inv(player,simobjects):
     oldtime = time.time()
     while 1:
         newtime = time.time()
-        if oldtime + 1 < newtime:
-            player,simbojects = gametick(player,simobjects)
-            oldtime = newtime
+        player,simbojects,oldtime = gametick(player,simobjects,oldtime,newtime)
         scrap = player.scrap
         metal = player.metal
         inventory = player.inventory
@@ -609,49 +620,67 @@ def inv(player,simobjects):
         pygame.display.update()
         
 
-def gametick(player,simobjects):
+def gametick(player,simobjects,oldtime,newtime):
     speed = 0
     popcap = 0
     fueluse = 0
-    
-    for i in range(8,15):
-        print(str(player.inventory[i]))
-        if str(player.inventory[i]).find('engine') != -1:
-            speed += player.inventory[i].topSpeed
-            if player.velocity[0] > 0:
-                fueluse += player.inventory[i].fuelUse
-        elif str(player.inventory[i]).find('house') != -1:
-            print('found a house')
-            popcap += player.inventory[i].capacity
-        elif str(player.inventory[i]).find('farm') != -1:
-            player.food += player.inventory[i].production
-    player.fuel -= fueluse
-    player.topSpeed = speed
-    player.popCapacity = popcap
-    if player.fuel <= 0:
-        player.fuel = 0
-        player.topSpeed = 0
 
-    if player.food > 2*player.population and player.population < player.popCapacity:
-        player.population +=1
-    if player.food < 1.5 * player.population and player.population >0:
-        player.population -= 1
-    if player.population > player.popCapacity:
-        diff = player.population - player.popCapacity
-        player.population -= diff
-    if player.food - player.population > 0:
-        player.food -= player.population
-    else:
-        player.food = 0
+    if oldtime + 1 < newtime:
+        for i in range(8,15):
+            #print(str(player.inventory[i]))
+            if str(player.inventory[i]).find('engine') != -1:
+                speed += player.inventory[i].topSpeed
+                if player.velocity[0] > 0:
+                    fueluse += player.inventory[i].fuelUse
+            elif str(player.inventory[i]).find('house') != -1:
+                popcap += player.inventory[i].capacity
+            elif str(player.inventory[i]).find('farm') != -1:
+                player.food += player.inventory[i].production
+        player.fuel -= fueluse
+        player.topSpeed = speed
+        player.popCapacity = popcap
+        if player.fuel <= 0:
+            player.fuel = 0
+            player.topSpeed = 0
 
-    return player,simobjects
+        if player.food > 2*player.population and player.population < player.popCapacity:
+            player.population +=1
+        if player.food < 1.5 * player.population and player.population >0:
+            player.population -= 1
+        if player.population > player.popCapacity:
+            diff = player.population - player.popCapacity
+            player.population -= diff
+        if player.food - player.population > 0:
+            player.food -= player.population
+        else:
+            player.food = 0
+        oldtime = newtime
+
+    for item in simobjects:
+        if str(item).find('scrap'):
+            if item.amount <= 0:
+                simobjects.remove(item)
+
+    return player,simobjects,oldtime
+
+def simstart(simobjects):
+    for i in range(0,20):
+        name = str('pile'+str(i))
+        name = scrap()
+        simobjects.append(name)
+    print(str(simobjects))
+
+    return simobjects
         
+def eatfood(simobjects,player):
+    print('omn?')
     
 
 def game():
     simobjects = []
+    simobjects = simstart(simobjects)
     Running = True
-    moveUp=moveDown=moveLeft=moveRight=inventory=False
+    moveUp=moveDown=moveLeft=moveRight=inventory=food=False
     north=south=east=west=0
     
     player = city(engine(5,100,5),house(10),farm())
@@ -680,6 +709,8 @@ def game():
                     moveRight=True
                 if event.key==pygame.K_i:
                     player.inventory = inv(player,simobjects)
+                if event.key==pygame.K_f:
+                    eatfood(simobjects,player)
             if event.type==pygame.KEYUP:
                 if event.key==pygame.K_UP:
                     moveUp=False
@@ -725,10 +756,8 @@ def game():
             player.velocity[1] = 'NORTH'
 
         newtime = time.time()
-        if oldtime + 1 < newtime:
-            player,simobjects = gametick(player,simobjects)
-            oldtime = newtime
-        cameraX,cameraY = gamerender(xMov,yMov,player,cameraX,cameraY)
+        player,simobjects,oldtime = gametick(player,simobjects,oldtime,newtime)
+        cameraX,cameraY = gamerender(xMov,yMov,player,cameraX,cameraY,simobjects)
 
 def gamemenu():
     pass
