@@ -3,8 +3,6 @@ import time
 import os
 # todo list:
 #make function for buttons that works?
-#re-make png images
-#idk
 
 pygame.init()
 display = pygame.display.set_mode((800,600))
@@ -29,10 +27,10 @@ MiniText = pygame.font.Font('freesansbold.ttf',18)
 display.fill(white)
 
 class city:
-    def __init__(self,engine,house):
+    def __init__(self,engine,house,farm):
         self.scrap = 0
         self.metal = 0
-        self.inventory = [engine,house,'none','none','none','none','none','none','none','none','none','none','none','none','none','none',]
+        self.inventory = [engine,house,farm,'none','none','none','none','none','none','none','none','none','none','none','none','none',]
         self.fuel = 500
         self.food = 1000
         self.population = 0
@@ -62,8 +60,9 @@ class house:
 
 class farm:
     def __init__(self):
-        self.production = 12
-        #self.pic = pygame.image.load('farm.png')
+        self.production = 11
+        self.capacity = 400
+        self.pic = pygame.image.load('farm.png')
 
 
 
@@ -624,8 +623,8 @@ def gametick(player,simobjects):
         elif str(player.inventory[i]).find('house') != -1:
             print('found a house')
             popcap += player.inventory[i].capacity
-        elif player.inventory[i] == farm:
-            player.food += player.farm.production
+        elif str(player.inventory[i]).find('farm') != -1:
+            player.food += player.inventory[i].production
     player.fuel -= fueluse
     player.topSpeed = speed
     player.popCapacity = popcap
@@ -655,7 +654,7 @@ def game():
     moveUp=moveDown=moveLeft=moveRight=inventory=False
     north=south=east=west=0
     
-    player = city(engine(5,100,5),house(10))
+    player = city(engine(5,100,5),house(10),farm())
     
     Clock = pygame.time.Clock()
     cameraX = 0
