@@ -72,11 +72,14 @@ class scrap:
         self.y = random.randint(0,2000)
         self.pic = pygame.image.load('pile.png')
 class cog:
-    def __init__(self,x,y):
+    def __init__(self,x,y,z):
         self.x = x
         self.y = y
         self.life = 10
-        self.pic = pygame.image.load('cog.png')
+        if z == 1:
+            self.pic = pygame.image.load('cog.png')
+        elif z == 2:
+            self.pic = pygame.image.load('fuel.png')
 
 
 
@@ -712,19 +715,28 @@ def eatfood(simobjects,player):
                     wat = random.randint(0,1)
                     if wat == 1:
                         player.scrap += speed
+                        name = str('cog' + str(i))
+                        name = cog(int(scrapX + 10),int(scrapY+10),1)
+                        simobjects.append(name)
                     else:
                         player.fuel += speed
+                        name = str('cog' + str(i))
+                        name = cog(int(scrapX + 10),int(scrapY+10),2)
+                        simobjects.append(name)
                 else:
                     wat = random.randint(0,1)
                     if wat == 1:
                         player.scrap += item.amount
                         item.amount = 0
+                        name = str('cog' + str(i))
+                        name = cog(int(scrapX + 10),int(scrapY+10),1)
+                        simobjects.append(name)
                     else:
                         player.fuel += item.amount
                         item.amount
-                name = str('cog' + str(i))
-                name = cog(int(scrapX + 10),int(scrapY+10))
-                simobjects.append(name)
+                        name = str('cog' + str(i))
+                        name = cog(int(scrapX + 10),int(scrapY+10),2)
+                        simobjects.append(name)
     
 
 def game():
