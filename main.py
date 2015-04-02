@@ -75,6 +75,7 @@ class cog:
     def __init__(self,x,y):
         self.x = x
         self.y = y
+        self.life = 10
         self.pic = pygame.image.load('cog.png')
 
 
@@ -233,9 +234,14 @@ def gamerender(xMov,yMov,player,cameraX,cameraY,simobjects):
     render(grass,int(1000-cameraX),int(1000-cameraY),1000,1000)
 
     for item in simobjects:
-        render(item.pic,int(item.x - cameraX),int(item.y - cameraY),int(100),int(100))
+        if str(item).find('scrap') != -1:
+            render(item.pic,int(item.x - cameraX),int(item.y - cameraY),int(100),int(100))
+    
     
     cameraX,cameraY = playerrender(xMov,yMov,player,cameraX,cameraY)
+    for item in simobjects:
+        if str(item).find('cog') != -1:
+            render(item.pic,int(item.x - cameraX),int(item.y - cameraY),int(50),int(50))
     
     
 
@@ -251,6 +257,18 @@ def invbutton(x,y):
             return True
     else:
         rect(grey,x,y,75,75)
+
+def invbutton2(x,y,z):
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+    if x+100 > mouse[0] > x and y+30 > mouse[1] > y:
+        rect(lightgrey,x,y,100,30)
+        text2(MiniText,str(z),x,y)
+        if int(click[0]) == 1:
+            return True
+    else:
+        rect(grey,x,y,100,30)
+        text2(MiniText,str(z),x,y)
 
 def inv(player,simobjects):
     potato = False
@@ -374,8 +392,10 @@ def inv(player,simobjects):
             button16 = invbutton(295,280)
             if inventory[15] != 'none':
                 render(inventory[15].pic,295,280,75,75)
-        elif window == '3':
-            pass
+        elif window == 'craft':
+            cat1 = invbutton2(55,130,'Craft')
+            cat2 = invbutton2(160,130,'Upgrade')
+            cat3 = invbutton2(265,130,'Smelt')
                 
 
         if button1 == True and select == False:
@@ -656,8 +676,14 @@ def gametick(player,simobjects,oldtime,newtime):
         oldtime = newtime
 
     for item in simobjects:
-        if str(item).find('scrap'):
+        if str(item).find('scrap') != -1:
+            #print(item)
             if item.amount <= 0:
+                simobjects.remove(item)
+        if str(item).find('cog') != -1:
+            item.y -= item.life
+            item.life -= 1
+            if item.life <= 0:
                 simobjects.remove(item)
 
     return player,simobjects,oldtime
@@ -667,7 +693,7 @@ def simstart(simobjects):
         name = str('pile'+str(i))
         name = scrap()
         simobjects.append(name)
-    print(str(simobjects))
+    #print(str(simobjects))
 
     return simobjects
         
@@ -675,8 +701,9 @@ def eatfood(simobjects,player):
     playerX = player.posX
     playerY = player.posY
     speed = player.jaw
-    for item in simobjects:
-        if str(item).find('scrap'):
+    for i in range(0,len(simobjects)):
+        item = simobjects[i]
+        if str(item).find('scrap') != -1:
             scrapX = item.x
             scrapY = item.y
             if scrapX + 100 > playerX > scrapX - 100 and scrapY + 100 > playerY > scrapY - 100:
@@ -694,7 +721,10 @@ def eatfood(simobjects,player):
                         item.amount = 0
                     else:
                         player.fuel += item.amount
-                        item.amount = 0
+                        item.amount
+                name = str('cog' + str(i))
+                name = cog(int(scrapX + 10),int(scrapY+10))
+                simobjects.append(name)
     
 
 def game():
