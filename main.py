@@ -67,10 +67,15 @@ class farm:
 
 class scrap:
     def __init__(self):
-        self.amount = random.randint(10,80)
+        self.amount = random.randint(50,200)
         self.x = random.randint(0,2000)
         self.y = random.randint(0,2000)
         self.pic = pygame.image.load('pile.png')
+class cog:
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+        self.pic = pygame.image.load('cog.png')
 
 
 
@@ -228,7 +233,7 @@ def gamerender(xMov,yMov,player,cameraX,cameraY,simobjects):
     render(grass,int(1000-cameraX),int(1000-cameraY),1000,1000)
 
     for item in simobjects:
-        render(item.pic,int(item.x - cameraX),int(item.y - cameraY),int(70),int(70))
+        render(item.pic,int(item.x - cameraX),int(item.y - cameraY),int(100),int(100))
     
     cameraX,cameraY = playerrender(xMov,yMov,player,cameraX,cameraY)
     
@@ -487,12 +492,6 @@ def inv(player,simobjects):
             button16 = False
             time.sleep(.1)
 
-
-        
-            
-            
-
-        
                 
         '''
         elif window == '2':
@@ -673,7 +672,29 @@ def simstart(simobjects):
     return simobjects
         
 def eatfood(simobjects,player):
-    print('omn?')
+    playerX = player.posX
+    playerY = player.posY
+    speed = player.jaw
+    for item in simobjects:
+        if str(item).find('scrap'):
+            scrapX = item.x
+            scrapY = item.y
+            if scrapX + 100 > playerX > scrapX - 100 and scrapY + 100 > playerY > scrapY - 100:
+                if item.amount >=speed:
+                    item.amount -=speed
+                    wat = random.randint(0,1)
+                    if wat == 1:
+                        player.scrap += speed
+                    else:
+                        player.fuel += speed
+                else:
+                    wat = random.randint(0,1)
+                    if wat == 1:
+                        player.scrap += item.amount
+                        item.amount = 0
+                    else:
+                        player.fuel += item.amount
+                        item.amount = 0
     
 
 def game():
