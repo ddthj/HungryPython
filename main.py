@@ -5,6 +5,9 @@ import random
 # todo list:
 #make function for buttons that works?
 
+
+#smelting - add invbuttion 2 for metal plate, and inbutton for smelting parts
+
 pygame.init()
 display = pygame.display.set_mode((800,600))
 pygame.display.set_caption('HungryCities')
@@ -35,7 +38,7 @@ class city:
         self.fuel = 500
         self.food = 1000
         self.population = 0
-        self.jaw = 10 #eatSpeed
+        self.jaw = 5 #eatSpeed
         self.tracks = ['default_tracks',1000] #name, weightCapacity
         self.posX = 300
         self.posY = 200
@@ -43,6 +46,7 @@ class city:
         self.topSpeed = 0
         self.popCapacity = 0
         self.weight = 0
+        self.smeltItem = ['none']
 
 class engine:
     def __init__(self,speed,weight,fuel):
@@ -278,6 +282,7 @@ def inv(player,simobjects):
     tier1button=True
     tier2button=craftbutton=button1=button2=button3=button4=button5=button6=button7=button8=button9=button10=button11=button12=button13=button14=button15=button16=False
     window = ''
+    craftwindow = ''
     select = False
     selected = 0
     oldtime = time.time()
@@ -287,6 +292,7 @@ def inv(player,simobjects):
         scrap = player.scrap
         metal = player.metal
         inventory = player.inventory
+        smeltItem = player.smeltItem
         food = player.food
         pop = player.population
         fuel = player.fuel
@@ -399,6 +405,17 @@ def inv(player,simobjects):
             cat1 = invbutton2(55,130,'Craft')
             cat2 = invbutton2(160,130,'Upgrade')
             cat3 = invbutton2(265,130,'Smelt')
+            if cat1 == True:
+                craftwindow = '1'
+            elif cat2 == True:
+                craftwindow = '2'
+            elif cat3 == True:
+                craftwindow = '3'
+
+
+            if craftwindow == '3':
+                smelt = invbutton(55,170)
+                smeltscrap = invbutton2(55,260,'Scrap')
                 
 
         if button1 == True and select == False:
