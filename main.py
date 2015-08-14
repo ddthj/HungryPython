@@ -4,9 +4,8 @@ import os
 import random
 # todo list:
 #make function for buttons that works?
-
-
-#smelting - add invbuttion 2 for metal plate, and inbutton for smelting parts
+# finish minimenu for object targeting
+# make bullet image and get gun shooting
 
 pygame.init()
 display = pygame.display.set_mode((800,600))
@@ -31,10 +30,10 @@ MiniText = pygame.font.Font('freesansbold.ttf',18)
 display.fill(white)
 
 class city:
-    def __init__(self,engine,house,farm):
+    def __init__(self,engine,house,farm,Napoleon_Cannon):
         self.scrap = 0
         self.metal = 0
-        self.inventory = [engine,house,farm,'none','none','none','none','none','none','none','none','none','none','none','none','none',]
+        self.inventory = [engine,house,farm,engine,engine,engine,Napoleon_Cannon,'none','none','none','none','none','none','none','none','none','none']
         self.fuel = 500
         self.food = 1000
         self.population = 0
@@ -46,7 +45,8 @@ class city:
         self.topSpeed = 0
         self.popCapacity = 0
         self.weight = 0
-        self.smeltItem = ['none']
+        self.health = 1000
+        self.target = 'none'
 
 class engine:
     def __init__(self,speed,weight,fuel):
@@ -55,6 +55,8 @@ class engine:
         self.weight = weight
         self.fuelUse = fuel
         self.pic = pygame.image.load('engine.png')
+        self.value = 200
+        self.health = 400
 
 class house:
     def __init__(self,capacity):
@@ -62,12 +64,16 @@ class house:
         self.capacity = 10
         self.weight = 10
         self.pic = pygame.image.load('house.png')
+        self.value = 70
+        self.health = 100
 
 class farm:
     def __init__(self):
         self.production = 11
         self.capacity = 400
         self.pic = pygame.image.load('farm.png')
+        self.value = 30
+        self.health = 50
 
 class scrap:
     def __init__(self):
@@ -85,8 +91,23 @@ class cog:
         elif z == 2:
             self.pic = pygame.image.load('fuel.png')
 
+class Napoleon_Cannon:
+    def __init__(self):
+        self.damage = 10
+        self.health = 250
+        self.fire_delay = 10
+        self.pic = pygame.image.load('fuel.png')
+        self.weight = 100
+        self.value = 300
 
-
+class Bullet1:
+    def __init__(self,x,y,movx,movy):
+        self.x = x
+        self.y = y
+        self.movx = movx
+        self.movy = movy
+        self.speed = 50
+        
 def text(font,text,center):
     textsurf = font.render(text,True,black)
     textrect = textsurf.get_rect()
@@ -234,7 +255,7 @@ def playerrender(xMov,Ymov,player,cameraX,cameraY):
 
     return cameraX,cameraY
 
-def gamerender(xMov,yMov,player,cameraX,cameraY,simobjects):
+def gamerender(xMov,yMov,player,cameraX,cameraY,simobjects,minimin,mcordx,mcordy):
     render(grass,int(0-cameraX),int(0-cameraY),1000,1000)
     render(grass,int(1000-cameraX),int(0-cameraY),1000,1000)
     render(grass,int(0-cameraX),int(1000-cameraY),1000,1000)
@@ -249,7 +270,9 @@ def gamerender(xMov,yMov,player,cameraX,cameraY,simobjects):
     for item in simobjects:
         if str(item).find('cog') != -1:
             render(item.pic,int(item.x - cameraX),int(item.y - cameraY),int(50),int(50))
-    
+
+    if minimin == True:
+        minimenu(mcordx,mcordy)
     
 
     pygame.display.update()
@@ -292,7 +315,6 @@ def inv(player,simobjects):
         scrap = player.scrap
         metal = player.metal
         inventory = player.inventory
-        smeltItem = player.smeltItem
         food = player.food
         pop = player.population
         fuel = player.fuel
@@ -415,7 +437,25 @@ def inv(player,simobjects):
 
             if craftwindow == '3':
                 smelt = invbutton(55,170)
-                smeltscrap = invbutton2(55,260,'Scrap')
+                if smelt == True and select == False:
+                    limbo = inventory[16]
+                    inventory[16] = 'none'
+                    select = True
+                    selected = 16
+                    smelt = False
+                    time.sleep(.1)
+                if smelt == True and select == True:
+                    inventory[selected] = inventory[16]
+                    inventory[16] = limbo
+                    select = False
+                    time.sleep(.1)
+                smeltscrap = invbutton2(55,260,'Recycle')
+                if smeltscrap == True and inventory[16] != 'none':
+                    smeltscrap == False
+                    player.scrap += inventory[16].value
+                    inventory[16] = 'none'
+                if inventory[16] != 'none':
+                    render(inventory[16].pic,55,170,75,75)
                 
 
         if button1 == True and select == False:
@@ -531,6 +571,7 @@ def inv(player,simobjects):
             selected = 15
             button16 = False
             time.sleep(.1)
+        
 
                 
         '''
@@ -675,6 +716,10 @@ def gametick(player,simobjects,oldtime,newtime):
                 popcap += player.inventory[i].capacity
             elif str(player.inventory[i]).find('farm') != -1:
                 player.food += player.inventory[i].production
+            elif str(player.inventory[i]).find('Napoleon_Cannon') != -1 and player.target != 'none':
+                pass
+                
+                
         player.fuel -= fueluse
         player.topSpeed = speed
         player.popCapacity = popcap
@@ -684,7 +729,7 @@ def gametick(player,simobjects,oldtime,newtime):
 
         if player.food > 2*player.population and player.population < player.popCapacity:
             player.population +=1
-        if player.food < 1.5 * player.population and player.population >0:
+        if player.food < 2.9 * player.population and player.population >0:
             player.population -= 1
         if player.population > player.popCapacity:
             diff = player.population - player.popCapacity
@@ -702,6 +747,7 @@ def gametick(player,simobjects,oldtime,newtime):
                 simobjects.remove(item)
         if str(item).find('cog') != -1:
             item.y -= item.life
+            item.x += random.randint(-3,3)
             item.life -= 1
             if item.life <= 0:
                 simobjects.remove(item)
@@ -757,13 +803,14 @@ def eatfood(simobjects,player):
     
 
 def game():
+    minimin = False
     simobjects = []
     simobjects = simstart(simobjects)
     Running = True
     moveUp=moveDown=moveLeft=moveRight=inventory=food=False
     north=south=east=west=0
     
-    player = city(engine(5,100,5),house(10),farm())
+    player = city(engine(5,100,5),house(10),farm(),Napoleon_Cannon())
     
     Clock = pygame.time.Clock()
     cameraX = 0
@@ -821,6 +868,9 @@ def game():
             if east > 0:
                 east -=1
 
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        
         xMov = east - west
         yMov = south - north
         player.velocity[0] = abs(xMov) + abs(yMov)
@@ -837,10 +887,25 @@ def game():
 
         newtime = time.time()
         player,simobjects,oldtime = gametick(player,simobjects,oldtime,newtime)
-        cameraX,cameraY = gamerender(xMov,yMov,player,cameraX,cameraY,simobjects)
+        cameraX,cameraY = gamerender(xMov,yMov,player,cameraX,cameraY,simobjects,minimin,mcordx,mcordy)
+        if minimin == True:
+            minimenu(mouse)
+        if int(click[0]) == 1:
+            for item in simobjects:
+                if item.x - 300 < int(mouse[0]) and item.x +300 > int(mouse[0]) and item.y - 300 < int(mouse[1]) and item.y + 300 > int(mouse[1]):
+                    minimin = True
+                    mcordx = mouse[0]
+                    mcordy = mouse[1]
+                else:
+                    minimin = False
 
 def gamemenu():
     pass
+
+def minimenu(x,y):
+    print('hi')
+    rect(grey,x,y,200,200)
+    
 
 
 menu()
